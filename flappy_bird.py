@@ -49,7 +49,7 @@ def updatePipes(self):
     if self.top.x < -44:
         self.top.x = 844
         self.bottom.x = 844
-        self.gap = randint(160, 260)
+        self.gap = randint(180, 260)
         minimum = -250 + (300 // 2) + (self.gap // 2)
         maximum = 850 - ((300 // 2) + (self.gap // 2))
         self.center_y = randint(minimum, maximum)
@@ -78,7 +78,7 @@ def draw():
         # draw actors
         for pipe in pipeslist:
             drawPipes(pipe)
-        screen.draw.text("Score: " + str(score), topleft=(20, 20), fontsize=30)
+        screen.draw.text("Score: " + str(score), topleft=(20, 20), color=(0, 0, 0), fontsize=30)
 
 # update everything
 def update():
@@ -92,12 +92,13 @@ def update():
         updatePipes(pipe)
         if pipe.top.x == 160:
             score += 1
+        if bird.colliderect(pipe.top) or bird.colliderect(pipe.bottom):
+            gameOver = True
     # bird hits bottom of screen
     if bird.y > 600 or bird.top < 0:
         gameOver = True
     # bird hits pipes
-        if bird.colliderect(pipe.top) or bird.colliderect(pipe.bottom):
-                    gameOver = True
+    
 
 # moving
 def on_mouse_down():
