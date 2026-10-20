@@ -38,9 +38,9 @@ class pipe:
         self.bottom.x = x
         self.bottom.y = center_y + 300 + gap / 2
 pipeslist = [
-        pipe(266, 400, 220),
-        pipe(532, 180, 220),
-        pipe(798, 415, 220)
+        pipe(466, 400, 220),
+        pipe(732, 180, 220),
+        pipe(998, 415, 220)
         ]
 
 def updatePipes(self):
@@ -67,7 +67,7 @@ def drawPipes(self):
 # draw everything to screen
 def draw():
     if gameOver == True:
-        screen.fill((0, 0, 0))  # RGB coloring for black background
+        screen.fill((0, 0, 0))
         screen.draw.text("Game Over!", center=(400, 300), fontsize=60)
         screen.draw.text("Final Score: " + str(score), center=(400, 360), fontsize=40)
     else:
@@ -92,13 +92,12 @@ def update():
         updatePipes(pipe)
         if pipe.top.x == 160:
             score += 1
-        if bird.colliderect(pipe.top) or bird.colliderect(pipe.bottom):
-            gameOver = True
     # bird hits bottom of screen
     if bird.y > 600 or bird.top < 0:
         gameOver = True
     # bird hits pipes
-    
+        if bird.colliderect(pipe.top) or bird.colliderect(pipe.bottom):
+                    gameOver = True
 
 # moving
 def on_mouse_down():
