@@ -3,18 +3,20 @@
 import pgzrun
 import sys
 from random import*
+import pygame
 
 # create constants
 WIDTH = 800
 HEIGHT = 600
 score = 0
+tick = 0
 gameOver = False 
 
 # print welcome
 print('Welcome!\nThe game is about to start!\nClick the mouse to "flap" upwards\nDodge the pipes and the floor\nGood luck and have fun!')
 
 # make background
-background = Actor("bg")
+background = Actor("bg2")
 background.x = 400
 background.y = 300
 
@@ -79,14 +81,24 @@ def draw():
         for pipe in pipeslist:
             drawPipes(pipe)
         screen.draw.text("Score: " + str(score), topleft=(20, 20), color=(0, 0, 0), fontsize=30)
+        # bird anim
+        
 
 # update everything
 def update():
-    global score, gameOver
+    global score, gameOver, tick
     if gameOver == True:
         return
+    tick += 1
+    if tick == 31:
+        tick = 0
     # update bird
     bird.y = bird.y + 2
+    if tick == 15:
+        bird.image = "bird1"
+    elif tick == 30:
+        bird.image = "bird2"
+    
     # update pipes
     for pipe in pipeslist:
         updatePipes(pipe)
@@ -99,6 +111,8 @@ def update():
         gameOver = True
     # bird hits pipes
     
+# animation
+
 
 # moving
 def on_mouse_down():
