@@ -11,6 +11,9 @@ HEIGHT = 600
 score = 0
 tick = 0
 gameOver = False 
+font = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixelon.ttf', 70)
+font2 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixeled.ttf', 40)
+font3 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pix32.ttf', 40)
 
 # print welcome
 print('Welcome!\nThe game is about to start!\nClick the mouse to "flap" upwards\nDodge the pipes and the floor\nGood luck and have fun!')
@@ -51,9 +54,9 @@ def updatePipes(self):
     if self.top.x < -44:
         self.top.x = 844
         self.bottom.x = 844
-        self.gap = randint(180, 260)
-        minimum = -250 + (300 // 2) + (self.gap // 2)
-        maximum = 850 - ((300 // 2) + (self.gap // 2))
+        self.gap = randint(180, 250)
+        minimum = -150 + (300 // 2) + (self.gap // 2)
+        maximum = 750 - ((300 // 2) + (self.gap // 2))
         self.center_y = randint(minimum, maximum)
         self.top.y = self.center_y - (300 + self.gap / 2)
         self.bottom.y = self.center_y + 300 + self.gap / 2
@@ -70,8 +73,11 @@ def drawPipes(self):
 def draw():
     if gameOver == True:
         screen.fill((0, 0, 0))
-        screen.draw.text("Game Over!", center=(400, 300), fontsize=60)
-        screen.draw.text("Final Score: " + str(score), center=(400, 360), fontsize=40)
+        fontah2 = font2.render("Game Over!", True, 'white')
+        screen.blit(fontah2, (200, 250))
+
+        fontah3 = font3.render(f'Final Score: {score}', True, 'white')
+        screen.blit(fontah3, (200, 360))
     else:
         # draw background
         background.draw()
@@ -80,7 +86,9 @@ def draw():
         # draw actors
         for pipe in pipeslist:
             drawPipes(pipe)
-        screen.draw.text("Score: " + str(score), topleft=(20, 20), color=(0, 0, 0), fontsize=30)
+        fontah1 = font.render(f'{score}', True, 'white')
+        screen.blit(fontah1, (400,20))
+        
         # bird anim
         
 
