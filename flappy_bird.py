@@ -11,10 +11,10 @@ HEIGHT = 600
 score = 0
 tick = 0
 gameOver = False
-outText = "" 
-highscore = 0
-can_score = True
 running = True
+BASE_DIR = os.path.dirname(__file__) 
+SOUND_PATH = os.path.join(BASE_DIR, "sound", "2026-10COMP-BirdGame-AT/sound/chirps.mp3") 
+flap_sfx = pygame.mixer.Sound(SOUND_PATH)
 font = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixelon.ttf', 70)
 font2 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixeled.ttf', 40)
 font3 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pix32.ttf', 40)
@@ -85,8 +85,8 @@ def draw():
 
         fontah3 = font3.render(f'Final Score: {score}', True, 'white')
         screen.blit(fontah3, (200, 360))
-        fontah3 = font3.render(f'Highscore: {highscore}', True, 'white')
-        screen.blit(fontah3, (200, 410))
+#        fontah3 = font3.render(f'Highscore: {highscore}', True, 'white')
+#        screen.blit(fontah3, (200, 410))
 
     else:
         # draw background
@@ -101,7 +101,7 @@ def draw():
 
 # update everything
 def update():
-    global score, gameOver, tick, can_score
+    global score, gameOver, tick
     if gameOver == True:
         return
     tick += 1
@@ -116,11 +116,8 @@ def update():
     # update pipes
     for pipe in pipeslist:
         updatePipes(pipe)
-        if pipe.top.x == 160 and can_score:
+        if pipe.top.x == 160:
             score += 1
-            can_score = False
-            if pipe.x < 0:
-                can_score = True
         if bird.colliderect(pipe.top) or bird.colliderect(pipe.bottom):
             gameOver = True
     # bird hits bottom of screen
@@ -131,13 +128,6 @@ def update():
 def on_mouse_down():
     bird.y -= 50
 
-# score?
-
-
-def update_score(score, high_score):
-    if score > high_score:
-        high_score = score
-    return high_score
 
 # runs everything
 pgzrun.go()
