@@ -10,7 +10,11 @@ WIDTH = 800
 HEIGHT = 600
 score = 0
 tick = 0
-gameOver = False 
+gameOver = False
+outText = "" 
+highscore = 0
+can_score = True
+running = True
 font = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixelon.ttf', 70)
 font2 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixeled.ttf', 40)
 font3 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pix32.ttf', 40)
@@ -27,6 +31,9 @@ background.y = 300
 bird = Actor("bird")
 bird.x = 160
 bird.y = 300
+
+# tryna make sound
+
 
 # make pipes
 class pipe:
@@ -78,6 +85,9 @@ def draw():
 
         fontah3 = font3.render(f'Final Score: {score}', True, 'white')
         screen.blit(fontah3, (200, 360))
+        fontah3 = font3.render(f'Highscore: {highscore}', True, 'white')
+        screen.blit(fontah3, (200, 410))
+
     else:
         # draw background
         background.draw()
@@ -88,13 +98,10 @@ def draw():
             drawPipes(pipe)
         fontah1 = font.render(f'{score}', True, 'white')
         screen.blit(fontah1, (400,20))
-        
-        # bird anim
-        
 
 # update everything
 def update():
-    global score, gameOver, tick
+    global score, gameOver, tick, can_score
     if gameOver == True:
         return
     tick += 1
@@ -106,25 +113,31 @@ def update():
         bird.image = "bird1"
     elif tick == 30:
         bird.image = "bird2"
-    
     # update pipes
     for pipe in pipeslist:
         updatePipes(pipe)
-        if pipe.top.x == 160:
+        if pipe.top.x == 160 and can_score:
             score += 1
+            can_score = False
+            if pipe.x < 0:
+                can_score = True
         if bird.colliderect(pipe.top) or bird.colliderect(pipe.bottom):
             gameOver = True
     # bird hits bottom of screen
     if bird.y > 600 or bird.top < 0:
         gameOver = True
-    # bird hits pipes
     
-# animation
-
-
 # moving
 def on_mouse_down():
     bird.y -= 50
+
+# score?
+
+
+def update_score(score, high_score):
+    if score > high_score:
+        high_score = score
+    return high_score
 
 # runs everything
 pgzrun.go()
