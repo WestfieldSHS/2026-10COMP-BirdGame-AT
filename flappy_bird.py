@@ -4,20 +4,28 @@ import pgzrun
 import sys
 from random import*
 import pygame
+import os
 
 # create constants
 WIDTH = 800
 HEIGHT = 600
 score = 0
+highscore = 0
 tick = 0
 gameOver = False
 running = True
-BASE_DIR = os.path.dirname(__file__) 
-SOUND_PATH = os.path.join(BASE_DIR, "sound", "2026-10COMP-BirdGame-AT/sound/chirps.mp3") 
-flap_sfx = pygame.mixer.Sound(SOUND_PATH)
+outText = ""
+name = ""   
 font = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixelon.ttf', 70)
 font2 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pixeled.ttf', 40)
 font3 = pygame.font.Font('2026-10COMP-BirdGame-AT/font/Pix32.ttf', 40)
+button_width = 160
+button_height = 50
+button_x = (WIDTH // 2) - (button_width // 2)
+button_y = (HEIGHT // 2) + 50
+buttons = Rect((button_x, button_y), (button_width, button_height))
+entered = False
+won = False
 
 # print welcome
 print('Welcome!\nThe game is about to start!\nClick the mouse to "flap" upwards\nDodge the pipes and the floor\nGood luck and have fun!')
@@ -32,7 +40,58 @@ bird = Actor("bird")
 bird.x = 160
 bird.y = 300
 
-# tryna make sound
+# highscore
+def check_highscore_pt1():
+    global highscore, outText
+    
+    try:
+        with open("highscore.txt", "r") as file:
+            line = file.readline().strip()
+            if line == "":
+                highscore = 0
+            else:
+                highscore = int(line)
+    except FileNotFoundError:
+        highscore = 0
+
+    if score > highscore:
+        with open("highscore.txt", "w") as file:
+            file.write(str(score))
+        outText = f"Congratulations! You beat the highscore! Your score was: {score}"
+    else:
+        outText = f"Your score was: {score}. The current highscore is: {highscore}"
+
+
+def check_highscore_pt2():
+    global won, outText
+    scores_dict = {}
+
+    try:
+        with open("highscores.txt", "r") as file:
+            for line in file:
+                if line.strip():
+                    parts = line.strip().split(":")
+                    if len(parts) == 2:
+                        scores_dict[parts[0]] = int(parts[1])
+    except FileNotFoundError:
+        pass
+
+    if name in scores_dict:
+        if score > scores_dict[name]:
+            won = True
+            scores_dict[name] = score
+    else:
+        won = True
+        scores_dict[name] = score
+
+    with open("highscores.txt", "w") as file:
+        for p_name, p_score in scores_dict.items():
+            file.write(f"{p_name}:{p_score}\n")
+
+    if won:
+        outText = f"New Personal High Score! {name}: {score}"
+    else:
+        outText = f"Game Over, {name}! Your Score: {score}"
 
 
 # make pipes
@@ -75,6 +134,28 @@ def updatePipes(self):
 def drawPipes(self):
     self.top.draw()
     self.bottom.draw()
+
+def draw():
+    screen.clear()
+    screen.fill((135, 206, 235))  
+    
+    if not start:
+        screen.draw.text("Click the game to start!", center=(WIDTH//2, HEIGHT//2 - 50), color=(255, 255, 255), fontsize=30)
+        bird.draw()
+        return
+
+    if not gameOver:
+        bird.draw()
+        screen.draw.text(f"Score: {score}", (10, 10), color=(255, 255, 255))
+    else:
+        screen.draw.text("GAME OVER", center=(WIDTH//2, HEIGHT//2 - 120), color=(255, 0, 0), fontsize=50)
+        screen.draw.text(outText, center=(WIDTH//2, HEIGHT//2 - 50), color=(255, 255, 255), fontsize=20)
+        screen.draw.filled_rect(buttons, (0, 200, 100))  
+        
+        text_center_x = buttons.x + (buttons)
+        text_center_y = buttons.y + (buttons.height // 2)
+        screen.draw.text("Play Again?", center=(text_center_x, text_center_y), color=(255, 255, 255), fontsize=24)
+
 
 # draw everything to screen
 def draw():
@@ -128,6 +209,11 @@ def update():
 def on_mouse_down():
     bird.y -= 50
 
+# pow pow
+def on_key_down(key):
+    global name, entered
+    if gameOver and not entered:
+        pass
 
 # runs everything
 pgzrun.go()
