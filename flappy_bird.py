@@ -20,25 +20,28 @@ entered = False
 won = False
 start = False
 count = 0
-y0 = 300
-t = 0
-g = 9.81
+start_y = 300
+fall_time = 0
+gravity = 9.81
+flap_speed = 40
 
 # fonts
 pygame.font.init()
 font = pygame.font.Font("2026-10COMP-BirdGame-AT/font/Pix32.ttf", 70)
-font2 = pygame.font.Font("2026-10COMP-BirdGame-AT/font/Pixeled.ttf", 40)
+font2 = pygame.font.Font("2026-10COMP-BirdGame-AT/font/Pixeled.ttf", 20)
 font3 = pygame.font.Font("2026-10COMP-BirdGame-AT/font/Pixelon.ttf", 70)
 font4 = pygame.font.Font("2026-10COMP-BirdGame-AT/font/ARCADECLASSIC.TTF", 50)
 font5 = pygame.font.Font("2026-10COMP-BirdGame-AT/font/Reset.ttf", 30)
+font6 = pygame.font.Font("2026-10COMP-BirdGame-AT/font/Minecraft.ttf", 20)
 
 # button pls work
-button_width = 160
-button_height = 50
+button_width = 220
+button_height = 60
 button_x = (WIDTH // 2) - (button_width // 2)
-button_y = (HEIGHT // 2) + 50
+button_y = 400
 buttons = Rect((button_x, button_y), (button_width, button_height))
 
+# the start of the game
 print('Welcome!\nThe game is about to start!\nClick the mouse to "flap" upwards\nDodge the pipes and the floor\nGood luck and have fun!')
 
 background = Actor("bg2")
@@ -55,11 +58,11 @@ title.y = 100
 
 # restart everything so no bug pls
 def restart():
-    global score, gameOver, tick, start, t, y0, won, outText, pipeslist
+    global score, gameOver, tick, start, fall_time, start_y, won, outText, pipeslist
     bird.x = 160
     bird.y = 300
-    y0 = bird.y
-    t = 0
+    start_y = bird.y
+    fall_time = 0
     score = 0
     tick = 0
     gameOver = False
@@ -71,6 +74,7 @@ def restart():
         pipe(732, 180, 220),
         pipe(998, 415, 220)
     ]
+
 
 # store the best highscore
 def check_highscore_pt1():
@@ -85,12 +89,14 @@ def check_highscore_pt1():
     except FileNotFoundError:
         highscore = 0
 
+
     if score > highscore:
         with open("highscore.txt", "w") as file:
             file.write(str(score))
         outText = f"New Highscore! Score: {score}"
     else:
         outText = f"Score: {score}. Highscore: {highscore}"
+
 
 def check_highscore_pt2():
     global won, outText
@@ -105,6 +111,7 @@ def check_highscore_pt2():
     except FileNotFoundError:
         pass
 
+
     if name in scores_dict:
         if score > scores_dict[name]:
             won = True
@@ -113,9 +120,11 @@ def check_highscore_pt2():
         won = True
         scores_dict[name] = score
 
+
     with open("highscores.txt", "w") as file:
         for p_name, p_score in scores_dict.items():
             file.write(f"{p_name}:{p_score}\n")
+
 
     if won:
         outText = f"New Personal High Score! {name}: {score}"
@@ -135,12 +144,14 @@ class pipe:
         self.bottom.x = x
         self.bottom.y = center_y + 300 + gap / 2
 
+# pipes, pos
 pipeslist = [
     pipe(466, 400, 220),
     pipe(732, 180, 220),
     pipe(998, 415, 220)
 ]
 
+# pipes (random ints and stuff)
 def updatePipes(self):
     self.top.x -= 2
     self.bottom.x -= 2
@@ -154,6 +165,7 @@ def updatePipes(self):
         self.top.y = self.center_y - (300 + self.gap / 2)
         self.bottom.y = self.center_y + 300 + self.gap / 2
 
+# draw pipes
 def drawPipes(self):
     self.top.draw()
     self.bottom.draw()
@@ -163,7 +175,7 @@ def draw():
     # clears everything off the screen then draws background
     screen.clear()
     background.draw()
-    
+   
     # pauses game til someone touches / clicks
     if not start:
         fontah4 = font4.render("Click the game to start!", True, "black")
@@ -182,18 +194,18 @@ def draw():
     else:
         screen.fill((0, 0, 0))
         fontah = font.render("Game Over!", True, "white")
-        screen.blit(fontah, (200, 200))
+        screen.blit(fontah, (200, 150))
         fontah2 = font2.render(f"{outText}", True, "white")
-        screen.blit(fontah2, (200, 300))
-        screen.draw.filled_rect(buttons, (0, 0, 0))
-        text_center_x = buttons.x + (button_width // 2)
-        text_center_y = buttons.y + (button_height // 2)
-        screen.draw.text("Play Again?", center=(text_center_x, text_center_y), color=(255, 255, 255), fontsize=24, font=font5)
+        screen.blit(fontah2, (200, 270))
+        screen.draw.filled_rect(buttons, (0, 200, 100))
+        btn_text = font5.render("Play Again?", True, "white")
+        text_rect = btn_text.get_rect(center=buttons.center)
+        screen.blit(btn_text, text_rect)
 
 
 # update everything
 def update():
-    global score, gameOver, tick, t, y0, start, count
+    global score, gameOver, tick, fall_time, start_y, start, count
     if not start:
         # bird jumpys
         count = (count + 1) % 100
@@ -208,8 +220,8 @@ def update():
     tick += 1
     if tick == 31:
         tick = 0
-    t += 0.1
-    bird.y = y0 + (0.5 * g * (t ** 2))
+    fall_time += 0.25
+    bird.y = start_y - (flap_speed * fall_time) + (0.5 * gravity * (fall_time ** 2))
     if tick == 15:
         bird.image = "bird1"
     elif tick == 30:
@@ -217,7 +229,7 @@ def update():
     # bird hits pipeuh
     for p in pipeslist:
         updatePipes(p)
-        if p.top.x == 160:
+        if 159 <= p.top.x <= 160:
             score += 1
         if bird.colliderect(p.top) or bird.colliderect(p.bottom):
             gameOver = True
@@ -226,20 +238,20 @@ def update():
     if bird.y > 600 or bird.y < 0:
         gameOver = True
         check_highscore_pt1()
+
 # birb
 def on_mouse_down(pos):
-    global start, t, y0, gameOver
+    global start, fall_time, start_y, gameOver
 
     if not start:
         start = True
-        y0 = bird.y
-        t = 0
+        start_y = bird.y
+        fall_time = 0
         return
 
     if not gameOver:
-        t = 0
-        bird.y -= 50
-        y0 = bird.y
+        fall_time = 0
+        start_y = bird.y
     else:
         if buttons.collidepoint(pos):
             restart()
